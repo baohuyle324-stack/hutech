@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ECC Cipher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
+        .card-header { background-color: #007bff; color: white; font-weight: bold; border-top-left-radius: 8px !important; border-top-right-radius: 8px !important; }
+        .btn-success { background-color: #28a745; border: none; }
+        .btn-success:hover { background-color: #218838; }
+        .back-link { margin-top: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="font-weight-bold">ECC CIPHER (Elliptic Curve Cryptography)</h1>
+            <p class="text-muted">Mã hóa bất đối xứng sử dụng đường cong Elliptic secp256k1</p>
+        </div>
+
+        <!-- Phần sinh khóa -->
+        <div class="card">
+            <div class="card-header bg-success text-white">SINH KHÓA (Key Generation)</div>
+            <div class="card-body">
+                <p class="card-text text-muted">Tạo một cặp khóa bất đối xứng (Khóa bí mật & Khóa công khai) ngẫu nhiên.</p>
+                <div class="form-group">
+                    <label class="font-weight-bold">Private Key (Hex, 256-bit):</label>
+                    <input type="text" id="genPrivateKey" class="form-control" placeholder="Chưa tạo khóa" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Public Key (Hex, 512-bit / 64 bytes):</label>
+                    <textarea id="genPublicKey" class="form-control" rows="2" placeholder="Chưa tạo khóa" readonly></textarea>
+                </div>
+                <button type="button" class="btn btn-success font-weight-bold" onclick="generateKeys()">Generate ECC Key Pair</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Phần mã hóa -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">MÃ HÓA (Encryption)</div>
+                    <div class="card-body">
+                        <form method="POST" action="ecc/encrypt">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Plain text:</label>
+                                <textarea class="form-control" name="inputPlainText" rows="3" placeholder="Nhập bản rõ cần mã hóa..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="font-weight-bold">Recipient's Public Key (Hex):</label>
+                                <textarea class="form-control" name="inputPublicKey" rows="3" placeholder="Dán khóa công khai của người nhận..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary font-weight-bold btn-block">Encrypt</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phần giải mã -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">GIẢI MÃ (Decryption)</div>
+                    <div class="card-body">
+                        <form method="POST" action="ecc/decrypt">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Cipher text (Format: EphemeralPubKey:Ciphertext):</label>
+                                <textarea class="form-control" name="inputCipherText" rows="3" placeholder="Dán bản mã cần giải mã..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="font-weight-bold">Your Private Key (Hex):</label>
+                                <input type="text" class="form-control" name="inputPrivateKey" placeholder="Nhập khóa bí mật của bạn..." required>
+                            </div>
+                            <button type="submit" class="btn btn-danger font-weight-bold btn-block">Decrypt</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="/" class="btn btn-secondary back-link font-weight-bold">Quay lại trang chủ</a>
+        </div>
+    </div>
+
+    <script>
+        function generateKeys() {
+            fetch('/ecc/generate_keys')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('genPrivateKey').value = data.private_key;
+                    document.getElementById('genPublicKey').value = data.public_key;
+                })
+                .catch(error => {
+                    alert('Lỗi sinh khóa: ' + error);
+                });
+        }
+    </script>
+</body>
+</html>

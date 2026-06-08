@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from cipher.caesar import CaesarCipher
 from cipher.vigenere import VigenereCipher
 from cipher.playfair import PlayFairCipher
@@ -128,6 +128,7 @@ def transposition_decrypt():
     transposition = TranspositionCipher()
     decrypted_text = transposition.decrypt(text, key)
     return f"text: {text}<br>/key: {key}<br>/decrypted text: {decrypted_text}"
+
 
 
 # --------------------- MAIN FUNCTION ---------------------

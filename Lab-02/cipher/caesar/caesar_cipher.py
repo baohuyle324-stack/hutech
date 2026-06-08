@@ -2,37 +2,57 @@ from cipher.caesar import ALPHABET
 
 class CaesarCipher:
     def __init__(self):
-        self.alphabet = ALPHABET
-        self.alphabet_len = len(self.alphabet)
+        self.alphabet     = ALPHABET
+        self.alphabet_len = len(self.alphabet)   # 26
 
-    def encrypt_text(self, text: str, key: int) -> str:
-        encrypted_text = []
+    # ------------------------------------------------------------------
+    # Validate đầu vào theo chuẩn Caesar Cipher:
+    #   - text  : không rỗng, phải chứa ít nhất 1 chữ cái
+    #   - key   : số nguyên, nằm trong [1, 25]
+    #             (key=0 hoặc key=26 không có tác dụng mã hoá)
+    # ------------------------------------------------------------------
+    def _validate(self, text: str, key) -> None:
+        if not text or not text.strip():
+            raise ValueError("Văn bản không được để trống.")
+        if not any(ch.isalpha() for ch in text):
+            raise ValueError("Văn bản phải chứa ít nhất một ký tự chữ cái.")
         try:
-            key = int(key)  # Đảm bảo key là số nguyên
-            for letter in text:
-                if letter.upper() in self.alphabet:  # Kiểm tra chữ hoa trong bảng chữ cái
-                    letter_index = self.alphabet.index(letter.upper())
-                    output_index = (letter_index + key) % self.alphabet_len
-                    output_letter = self.alphabet[output_index]
-                    encrypted_text.append(output_letter if letter.isupper() else output_letter.lower())
+            k = int(key)
+        except (ValueError, TypeError):
+            raise ValueError("Khóa phải là số nguyên.")
+        if not (1 <= k <= 25):
+            raise ValueError("Khóa Caesar phải nằm trong khoảng [1, 25].")
+
+    def encrypt_text(self, text: str, key) -> str:
+        try:
+            self._validate(text, key)
+            key = int(key)
+            result = []
+            for ch in text:
+                if ch.upper() in self.alphabet:
+                    idx        = self.alphabet.index(ch.upper())
+                    new_idx    = (idx + key) % self.alphabet_len
+                    new_ch     = self.alphabet[new_idx]
+                    result.append(new_ch if ch.isupper() else new_ch.lower())
                 else:
-                    encrypted_text.append(letter)  # Giữ nguyên dấu câu và khoảng trắng
+                    result.append(ch)   # Giữ nguyên ký tự không phải chữ cái
+            return "".join(result)
         except ValueError as e:
             return f"Lỗi: {e}"
-        return "".join(encrypted_text)
 
-    def decrypt_text(self, text: str, key: int) -> str:
-        decrypted_text = []
+    def decrypt_text(self, text: str, key) -> str:
         try:
-            key = int(key)  # Đảm bảo key là số nguyên
-            for letter in text:
-                if letter.upper() in self.alphabet:
-                    letter_index = self.alphabet.index(letter.upper())
-                    output_index = (letter_index - key) % self.alphabet_len
-                    output_letter = self.alphabet[output_index]
-                    decrypted_text.append(output_letter if letter.isupper() else output_letter.lower())
+            self._validate(text, key)
+            key = int(key)
+            result = []
+            for ch in text:
+                if ch.upper() in self.alphabet:
+                    idx        = self.alphabet.index(ch.upper())
+                    new_idx    = (idx - key) % self.alphabet_len
+                    new_ch     = self.alphabet[new_idx]
+                    result.append(new_ch if ch.isupper() else new_ch.lower())
                 else:
-                    decrypted_text.append(letter)
+                    result.append(ch)
+            return "".join(result)
         except ValueError as e:
             return f"Lỗi: {e}"
-        return "".join(decrypted_text)
